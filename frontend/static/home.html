@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="style.css">
+        <title>decryptmypack.com</title>
+
+        <meta property="og:title" content="decryptmypack.com">
+        <meta property="og:description" content="Decrypt any Minecraft: Bedrock resource pack.">
+        <meta property="og:type" content="website">
+
+    </head>
+    <body>
+    <div class="container">
+        <h1 class="header">decrypt my pack.</h1>
+        <p class="description">enter the ip of the server you want to download the pack from.<br>our backend will decrypt it for you.</p>
+        <div id="loading" style="display: block;">Downloading...</div>
+        <div id="error" style="display: block;"></div>
+        <div class="functionality">
+            <label>
+                <input id="input" type="text" placeholder="zeqa.net:19132">
+            </label>
+            <button class="decrypt" onclick="decrypt()">decrypt pack</button>
+        </div>
+    </div>
+    </body>
+
+    <script src="../src/script.js"></script>
+</html>

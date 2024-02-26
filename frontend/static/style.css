@@ -1,0 +1,95 @@
+@font-face {
+    font-family: 'Quicksand';
+    src: url('../assets/Quicksand_Bold.otf') format('truetype');
+
+}
+
+body {
+    background: rgb(31, 41, 55);
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align items to the start (left) */
+    justify-content: center; /* Center vertically */
+    height: 45vw;
+    padding-left: 5vw;
+    font-family: Quicksand, sans-serif;
+}
+
+h1 {
+    color: rgb(219 234 254);
+    font-size: 2.5vw;
+    margin-bottom: 0.001vw;
+}
+
+.description {
+    color: rgb(219 234 254);
+    font-size: 1vw;
+    padding-left: 0.25vw;
+}
+
+input {
+    width: 7vw;
+    height: 0.8vw;
+    border-radius: 0.4vw; /* Adjust the value to control the roundness */
+    padding: 0.6vw; /* Adjust padding for better appearance */
+    font-size: 0.7vw;
+    border: 0 solid;
+    background-color: #1581c0;
+    color: white;
+    font-family: Quicksand, sans-serif;
+}
+
+input:active,
+input:focus {
+    outline: none;
+}
+input:hover, .decrypt:hover {
+    background-color: #0d86dd;
+    cursor: pointer; /* Change cursor to pointer on hover */
+}
+
+/* Set placeholder color to white */
+input::placeholder {
+    color: white;
+}
+
+.decrypt {
+    width: 7vw;
+    height: 2vw;
+    border-radius: 0.4vw; /* Adjust the value to control the roundness */
+    padding: 0.416vw; /* Adjust padding for better appearance */
+    font-size: 0.7vw;
+    border: 0 solid;
+    background-color: #1581c0;
+    color: white;
+    align-self: center;
+    font-family: Quicksand, sans-serif;
+}
+#loading {
+    position: fixed;
+    top: 52%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    opacity: 0; /* Initially set opacity to 0 */
+    transition: opacity 0.5s ease; /* Add transition for opacity */
+}
+
+#error {
+    position: fixed;
+    top: 52%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: indianred;
+    padding: 10px 20px;
+    border-radius: 5px;
+    opacity: 0; /* Initially set opacity to 0 */
+    transition: opacity 0.5s ease; /* Add transition for opacity */
+}
