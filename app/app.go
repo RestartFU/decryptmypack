@@ -16,8 +16,8 @@ func (a *App) ListenAndServe(addr string) error {
 	router.HandleFunc("/", serveFileFunc("./frontend/static/home.html"))
 	router.HandleFunc("/style.css", serveFileFunc("./frontend/static/style.css"))
 	router.HandleFunc("/src/script.js", serveFileFunc("./frontend/src/script.js"))
-	router.HandleFunc("/assets/quicksand_bold.ttf", serveFileFunc("./frontend/assets/quicksand_bold.ttf"))
-	return http.ListenAndServe(addr, router)
+	router.HandleFunc("/assets/Quicksand_Bold.otf", serveFileFunc("./frontend/assets/Quicksand_Bold.otf"))
+	return http.ListenAndServeTLS(addr, "./certificate.crt", "./private.key", router)
 }
 
 func serveFileFunc(name string) func(http.ResponseWriter, *http.Request) {

@@ -1,6 +1,6 @@
 function decrypt() {
     let input = document.getElementById('input').value;
-    let apiUrl = "http://moyai.pro:6969/download?target=" + input;
+    let apiUrl = "https://decryptmypack.com:443/download?target=" + input;
 
     // Create a new XMLHttpRequest object
     let xhr = new XMLHttpRequest();

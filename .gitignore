@@ -1,2 +1,5 @@
 .idea/
 token.json
+private.key
+ca_bundle.crt
+certificate.crt
