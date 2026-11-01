@@ -1,0 +1,18 @@
+.idea/
+token.json
+private.key
+ca_bundle.crt
+certificate.crt
+/data/
+.env
+decryptmypack
+decryptmypack-linux-amd64
+proxies.txt
+
+# Local UX goal automation secrets
+.env.ux-goal
+reports/ux-goal/
+
+# Local global improvement automation secrets
+.env.improvement-goal
+reports/improvement-goal/

@@ -1,0 +1,22 @@
+[Unit]
+Description=DecryptMyPack standalone server
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/decryptmypack
+ExecStart=%h/decryptmypack/decryptmypack
+# LISTEN_ADDR comes from the host-specific file written by scripts/deploy-local.sh.
+EnvironmentFile=%h/decryptmypack/decryptmypack.env
+Environment=DATA_DIR=%h/decryptmypack/data
+Environment=TOKEN_PATH=%h/decryptmypack/state/token.json
+Environment=MAX_CONCURRENT_DOWNLOADS=2
+Restart=on-failure
+RestartSec=5s
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target

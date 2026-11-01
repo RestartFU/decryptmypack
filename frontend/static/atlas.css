@@ -1,0 +1,921 @@
+/*
+ * Atlas: the DecryptMyPack design system.
+ * Tokens and shared components live here; page layout lives in style.css.
+ * Font faces are declared in style.css.
+ */
+
+:root {
+    color-scheme: dark;
+
+    /* Ground: the transparency checkerboard of a texture atlas. */
+    --checker-a: #191a1a;
+    --checker-b: #1e1f1f;
+    --checker-size: 32px;
+
+    /* Deepslate tiles. */
+    --tile: #232524;
+    --tile-raised: #2b2d2c;
+    --tile-sunk: #161717;
+    --tile-light: #343736;
+    --edge: #0b0c0c;
+
+    /* Ink. */
+    --ink: #f2f3ef;
+    --ink-2: #c3c6c0;
+    --ink-3: #959892;
+
+    /* Block swatches, each with one job. */
+    --grass: #76c043;
+    --grass-light: #93d862;
+    --grass-dark: #3f7a1e;
+    --grass-ink: #0d1a05;
+    --gold: #f4c534;
+    --gold-dark: #a27c10;
+    --redstone: #ff5c48;
+    --redstone-dark: #8f1d12;
+    --diamond: #5ce3d6;
+    --diamond-dark: #1d7f78;
+    --dirt: #8b5a35;
+    --lapis: #3e6fd0;
+    --stone: #7c7f7b;
+
+    --font-display: "Silkscreen", "Rubik", ui-sans-serif, system-ui, sans-serif;
+    --font-ui: "Rubik", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-data: "JetBrains Mono", ui-monospace, "Cascadia Mono", Menlo, monospace;
+
+    /* One pixel of the atlas grid, and the tile it builds. */
+    --px: 2px;
+    --unit: 4px;
+    --s1: 4px;
+    --s2: 8px;
+    --s3: 12px;
+    --s4: 16px;
+    --s5: 24px;
+    --s6: 32px;
+    --s7: 48px;
+    --s8: 64px;
+    --s9: 96px;
+
+    --step: steps(4, end);
+    --fast: 120ms;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    background-color: var(--checker-a);
+    background-image: repeating-conic-gradient(var(--checker-a) 0 25%, var(--checker-b) 0 50%);
+    background-size: var(--checker-size) var(--checker-size);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-size: 16px;
+    line-height: 1.55;
+    caret-color: var(--grass);
+    font-synthesis: none;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0;
+    text-wrap: balance;
+}
+
+/* Silkscreen sets lowercase as small caps; headings take the full capitals and the bold cut. */
+h1,
+h2 {
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+p {
+    margin: 0;
+    text-wrap: pretty;
+}
+
+button,
+input {
+    font: inherit;
+    color: inherit;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+}
+
+code,
+kbd,
+.data {
+    font-family: var(--font-data);
+    font-size: 0.875em;
+    font-variant-numeric: tabular-nums;
+}
+
+::selection {
+    background: var(--grass);
+    color: var(--grass-ink);
+}
+
+:focus-visible {
+    outline: var(--px) solid var(--ink);
+    outline-offset: var(--px);
+}
+
+* {
+    scrollbar-color: var(--stone) var(--tile-sunk);
+}
+
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--tile-sunk);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--tile-light);
+    border: var(--px) solid var(--tile-sunk);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--stone);
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Wordmark and mark. */
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s2);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1;
+    text-decoration: none;
+}
+
+.brand-mark {
+    width: 28px;
+    height: 28px;
+    flex: none;
+    shape-rendering: crispEdges;
+}
+
+.brand-mark .mark-base {
+    fill: var(--ink-2);
+}
+
+.brand-mark .mark-lift {
+    fill: var(--grass);
+}
+
+.brand-tld {
+    color: var(--ink-3);
+}
+
+/* Drawn pixel icons share one grid and one weight. */
+
+.icon {
+    width: 16px;
+    height: 16px;
+    flex: none;
+    fill: currentColor;
+    shape-rendering: crispEdges;
+}
+
+/* Tiles: square, opaque, edged by one atlas pixel line. */
+
+.tile {
+    background: var(--tile);
+    border: var(--px) solid var(--edge);
+    box-shadow: inset 0 var(--px) 0 var(--tile-light);
+}
+
+.label {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.2;
+    color: var(--ink-3);
+}
+
+/* Buttons: blocks that press down by one atlas pixel. */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--s2);
+    min-height: 44px;
+    padding: 0 var(--s4);
+    border: var(--px) solid var(--edge);
+    border-radius: 0;
+    background: var(--tile-raised);
+    box-shadow: inset 0 calc(var(--px) * -2) 0 var(--edge), inset 0 var(--px) 0 var(--tile-light);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color var(--fast) var(--step), transform var(--fast) var(--step);
+}
+
+.btn:hover {
+    background: var(--tile-light);
+}
+
+.btn:active:not(:disabled) {
+    transform: translateY(var(--px));
+    box-shadow: inset 0 var(--px) 0 var(--edge);
+}
+
+.btn-go {
+    background: var(--grass);
+    box-shadow: inset 0 calc(var(--px) * -2) 0 var(--grass-dark), inset 0 var(--px) 0 var(--grass-light);
+    color: var(--grass-ink);
+}
+
+.btn-go:hover {
+    background: var(--grass-light);
+}
+
+.btn-go:active:not(:disabled) {
+    box-shadow: inset 0 var(--px) 0 var(--grass-dark);
+}
+
+.btn:disabled,
+.btn:disabled:hover,
+.btn[aria-disabled="true"] {
+    cursor: not-allowed;
+    color: var(--ink-3);
+    background: var(--tile-sunk);
+    box-shadow: none;
+    transform: none;
+}
+
+.btn-quiet {
+    min-height: 36px;
+    padding: 0 var(--s3);
+    font-size: 16px;
+}
+
+.btn-icon {
+    width: 36px;
+    min-height: 36px;
+    padding: 0;
+}
+
+.link {
+    color: var(--grass-light);
+    text-decoration: underline;
+    text-decoration-thickness: var(--px);
+    text-underline-offset: 4px;
+}
+
+.link:hover {
+    color: var(--ink);
+}
+
+/* The address slot: one field, one action. */
+
+.slot {
+    display: flex;
+    align-items: stretch;
+    background: var(--tile-sunk);
+    border: var(--px) solid var(--edge);
+    box-shadow: inset 0 var(--px) 0 #000;
+}
+
+.slot:focus-within {
+    border-color: var(--grass);
+}
+
+.slot-glyph {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    flex: none;
+    color: var(--ink-3);
+}
+
+.slot input {
+    min-width: 0;
+    flex: 1;
+    height: 56px;
+    padding: 0 var(--s3) 0 0;
+    border: 0;
+    outline: 0;
+    background: none;
+    color: var(--ink);
+    font-family: var(--font-data);
+    font-size: 17px;
+}
+
+.slot input::placeholder {
+    color: var(--ink-3);
+}
+
+.slot input:disabled {
+    color: var(--ink-3);
+}
+
+.slot .btn {
+    min-height: 56px;
+    margin: 0;
+    padding: 0 var(--s5);
+    border-width: 0 0 0 var(--px);
+    font-size: 16px;
+}
+
+/* Stage sheet: the pipeline drawn as atlas tiles that dissolve in as real stages finish. */
+
+.stages {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--px);
+    margin: 0;
+    padding: var(--px);
+    list-style: none;
+    background: var(--edge);
+}
+
+.stage {
+    display: grid;
+    gap: var(--s2);
+    padding: var(--s2) var(--s2) var(--s3);
+    background: var(--tile-sunk);
+}
+
+.stage-tile {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+    aspect-ratio: 1;
+    overflow: hidden;
+    background-color: var(--checker-a);
+    background-image: repeating-conic-gradient(#202121 0 25%, #2a2b2b 0 50%);
+    background-size: 25% 25%;
+}
+
+.stage-tile i {
+    display: block;
+    background: transparent;
+}
+
+.stage-name {
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.1;
+    color: var(--ink-3);
+    text-align: center;
+}
+
+.stage[data-stage-state="active"] .stage-name {
+    color: var(--gold);
+}
+
+.stage[data-stage-state="done"] .stage-name {
+    color: var(--ink);
+}
+
+.stage[data-stage-state="failed"] .stage-name {
+    color: var(--redstone);
+}
+
+/* A fixed shuffled order makes each tile fill like a dithered dissolve. */
+.stage-tile i:nth-child(1) { --o: 5; }
+.stage-tile i:nth-child(2) { --o: 12; }
+.stage-tile i:nth-child(3) { --o: 1; }
+.stage-tile i:nth-child(4) { --o: 9; }
+.stage-tile i:nth-child(5) { --o: 14; }
+.stage-tile i:nth-child(6) { --o: 3; }
+.stage-tile i:nth-child(7) { --o: 7; }
+.stage-tile i:nth-child(8) { --o: 0; }
+.stage-tile i:nth-child(9) { --o: 10; }
+.stage-tile i:nth-child(10) { --o: 15; }
+.stage-tile i:nth-child(11) { --o: 2; }
+.stage-tile i:nth-child(12) { --o: 6; }
+.stage-tile i:nth-child(13) { --o: 11; }
+.stage-tile i:nth-child(14) { --o: 4; }
+.stage-tile i:nth-child(15) { --o: 13; }
+.stage-tile i:nth-child(16) { --o: 8; }
+
+.stage:nth-child(2) { --stage-delay: 1; }
+.stage:nth-child(3) { --stage-delay: 2; }
+.stage:nth-child(4) { --stage-delay: 3; }
+.stage:nth-child(5) { --stage-delay: 4; }
+
+.stage[data-stage-state="active"] .stage-tile i {
+    background: rgb(244 197 52 / 0.22);
+    animation: atlas-work 1600ms steps(1, end) infinite;
+    animation-delay: calc(var(--o) * 100ms);
+}
+
+.stage[data-stage-state="done"] .stage-tile i {
+    background: var(--grass);
+    animation: atlas-fill 1ms steps(1, end) both;
+    animation-delay: calc(var(--o) * 24ms + var(--stage-delay, 0) * 90ms);
+}
+
+/* Done tiles read as a grass block: lit top row, speckled face, shaded base. */
+.stage[data-stage-state="done"] .stage-tile i:nth-child(-n + 4),
+.stage[data-stage-state="done"] .stage-tile i:nth-child(6),
+.stage[data-stage-state="done"] .stage-tile i:nth-child(11) {
+    background: var(--grass-light);
+}
+
+.stage[data-stage-state="done"] .stage-tile i:nth-child(n + 13),
+.stage[data-stage-state="done"] .stage-tile i:nth-child(8) {
+    background: var(--grass-dark);
+}
+
+/* A cache hit is the one stage that fills diamond, matching the "Cached" glyph. */
+.stage[data-cache-hit="true"][data-stage-state="done"] .stage-tile i {
+    background: var(--diamond);
+}
+
+.stage[data-cache-hit="true"][data-stage-state="done"] .stage-tile i:nth-child(-n + 4),
+.stage[data-cache-hit="true"][data-stage-state="done"] .stage-tile i:nth-child(6),
+.stage[data-cache-hit="true"][data-stage-state="done"] .stage-tile i:nth-child(11) {
+    background: #a6f2ea;
+}
+
+.stage[data-cache-hit="true"][data-stage-state="done"] .stage-tile i:nth-child(n + 13),
+.stage[data-cache-hit="true"][data-stage-state="done"] .stage-tile i:nth-child(8) {
+    background: var(--diamond-dark);
+}
+
+.stage[data-stage-state="failed"] .stage-tile i {
+    background: var(--redstone);
+    animation: atlas-fill 1ms steps(1, end) both;
+    animation-delay: calc(var(--o) * 24ms);
+}
+
+.stage[data-stage-state="failed"] .stage-tile i:nth-child(odd) {
+    background: var(--redstone-dark);
+}
+
+@keyframes atlas-fill {
+    from {
+        background: transparent;
+    }
+}
+
+@keyframes atlas-work {
+    0%,
+    100% {
+        background: rgb(244 197 52 / 0.22);
+    }
+    50% {
+        background: var(--gold);
+    }
+}
+
+/* Cache states: shape carries the meaning, colour confirms it. */
+
+.cache-glyph {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    flex: none;
+    vertical-align: -1px;
+}
+
+.cache-glyph-cached {
+    background: var(--diamond);
+}
+
+.cache-glyph-running {
+    background: linear-gradient(to top, var(--gold) 50%, transparent 50%);
+    border: var(--px) solid var(--gold);
+}
+
+.cache-glyph-uncached {
+    border: var(--px) solid var(--stone);
+}
+
+.cache-glyph-failed {
+    background:
+        linear-gradient(45deg, transparent 40%, var(--redstone) 40% 60%, transparent 60%),
+        linear-gradient(-45deg, transparent 40%, var(--redstone) 40% 60%, transparent 60%);
+}
+
+/* Server cells: packed edge to edge like an atlas sheet. */
+
+/* Cells draw their own edge, so a short last row leaves the checkerboard showing, not a black hole. */
+.atlas-grid {
+    display: grid;
+    gap: var(--px);
+    padding: var(--px);
+}
+
+.atlas-grid > * {
+    outline: var(--px) solid var(--edge);
+}
+
+.server-cell {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    align-items: center;
+    gap: var(--s3);
+    min-width: 0;
+    padding: var(--s3);
+    border: 0;
+    background: var(--tile);
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+    transition: background-color var(--fast) var(--step);
+}
+
+.server-cell:hover:not(:disabled) {
+    background: var(--tile-raised);
+}
+
+.server-cell:focus-visible {
+    outline: var(--px) solid var(--ink);
+    outline-offset: calc(var(--px) * -2);
+}
+
+.server-cell:disabled {
+    cursor: wait;
+    color: var(--ink-3);
+}
+
+.server-cell[aria-pressed="true"],
+.server-cell.is-selected {
+    background: var(--tile-raised);
+    box-shadow: inset 0 0 0 var(--px) var(--grass);
+}
+
+.server-icon {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border: var(--px) solid var(--edge);
+    background: var(--tile-sunk);
+}
+
+.server-fallback {
+    display: grid;
+    place-items: center;
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.server-fallback[data-block="0"] { background: var(--dirt); }
+.server-fallback[data-block="1"] { background: var(--lapis); }
+.server-fallback[data-block="2"] { background: #5a5d59; }
+.server-fallback[data-block="3"] { background: var(--grass-dark); }
+.server-fallback[data-block="4"] { background: #7a3b8f; }
+.server-fallback[data-block="5"] { background: var(--diamond-dark); }
+
+.server-copy {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+}
+
+.server-name {
+    overflow: hidden;
+    font-family: var(--font-ui);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.25;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.server-address {
+    overflow: hidden;
+    color: var(--ink-2);
+    font-family: var(--font-data);
+    font-size: 13px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.server-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    color: var(--ink-3);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Dialogs and notices. */
+
+.dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: grid;
+    place-items: center;
+    padding: var(--s5);
+    background: rgb(8 9 9 / 0.82);
+}
+
+.dialog {
+    position: relative;
+    width: min(460px, 100%);
+    padding: var(--s6);
+    background: var(--tile);
+    border: var(--px) solid var(--edge);
+    box-shadow: inset 0 var(--px) 0 var(--tile-light);
+}
+
+.dialog h2 {
+    margin-bottom: var(--s3);
+    font-size: 24px;
+}
+
+.dialog p {
+    color: var(--ink-2);
+}
+
+.dialog-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--s2);
+    margin-top: var(--s5);
+}
+
+.notice {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--s2);
+    padding: var(--s2) var(--s3);
+    border: var(--px) solid var(--redstone-dark);
+    background: #2a1512;
+    color: #ffd3cc;
+    font-size: 14px;
+}
+
+.notice .icon {
+    margin-top: 3px;
+    color: var(--redstone);
+}
+
+/* Accounts: the rail list beside the website tool. */
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: var(--s1);
+}
+
+.section-heading .label {
+    margin: 0;
+}
+
+.account-list {
+    display: grid;
+    gap: var(--px);
+}
+
+.account-row {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr) 28px;
+    align-items: center;
+    gap: var(--s2);
+    min-height: 48px;
+    padding: var(--s2);
+    border: var(--px) solid transparent;
+    color: var(--ink-2);
+    cursor: pointer;
+}
+
+.account-row:hover {
+    background: var(--tile);
+    color: var(--ink);
+}
+
+.account-row.active {
+    border-color: var(--edge);
+    background: var(--tile);
+    box-shadow: inset 0 0 0 var(--px) var(--grass);
+    color: var(--ink);
+}
+
+.account-row:focus-visible {
+    outline-offset: calc(var(--px) * -2);
+}
+
+.avatar {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: var(--px) solid var(--edge);
+    background: var(--lapis);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 400;
+    text-transform: uppercase;
+}
+
+.account-row.active .avatar {
+    background: var(--grass);
+    color: var(--grass-ink);
+}
+
+.account-name {
+    overflow: hidden;
+    font-weight: 500;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.remove-account {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink-3);
+    cursor: pointer;
+    opacity: 0;
+}
+
+.account-row:hover .remove-account,
+.account-row:focus-within .remove-account {
+    opacity: 1;
+}
+
+.remove-account:hover,
+.remove-account:focus-visible {
+    color: var(--redstone);
+    opacity: 1;
+}
+
+.empty-accounts {
+    padding: var(--s3);
+    border: var(--px) dashed var(--tile-light);
+    color: var(--ink-3);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Account dialog and notices. */
+
+.dialog-backdrop[hidden] {
+    display: none;
+}
+
+.modal-close {
+    position: absolute;
+    top: var(--s3);
+    right: var(--s3);
+}
+
+.dialog h2 {
+    padding-right: var(--s7);
+}
+
+.dialog p {
+    margin-bottom: var(--s5);
+}
+
+.dialog-wide {
+    width: 100%;
+}
+
+.code-box {
+    display: grid;
+    gap: var(--s1);
+    width: 100%;
+    margin-bottom: var(--s3);
+    padding: var(--s4);
+    border: var(--px) dashed var(--stone);
+    background: var(--tile-sunk);
+    color: var(--ink);
+    cursor: pointer;
+}
+
+.code-box:hover {
+    border-color: var(--grass);
+}
+
+.code-box span {
+    font-family: var(--font-data);
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+}
+
+.code-box small {
+    color: var(--ink-3);
+    font-size: 13px;
+}
+
+.dialog .waiting {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--s2);
+    margin: var(--s4) 0 0;
+    color: var(--ink-3);
+    font-size: 14px;
+}
+
+.waiting-block {
+    width: 8px;
+    height: 8px;
+    background: var(--gold);
+    animation: waiting-blink 1s steps(1, end) infinite;
+}
+
+@keyframes waiting-blink {
+    50% {
+        background: var(--gold-dark);
+    }
+}
+
+.dialog-fine {
+    font-size: 14px;
+}
+
+.toast {
+    position: fixed;
+    right: var(--s5);
+    bottom: var(--s5);
+    z-index: 50;
+    max-width: 360px;
+    padding: var(--s3) var(--s4);
+    border: var(--px) solid var(--edge);
+    background: var(--tile-raised);
+    box-shadow: inset 0 var(--px) 0 var(--tile-light), 0 0 0 var(--px) var(--edge);
+    color: var(--ink);
+    font-size: 14px;
+}
+
+.toast[hidden] {
+    display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition-duration: 1ms !important;
+    }
+
+    .stage[data-stage-state="active"] .stage-tile i,
+    .stage[data-stage-state="done"] .stage-tile i,
+    .stage[data-stage-state="failed"] .stage-tile i {
+        animation: none;
+    }
+
+    .stage[data-stage-state="active"] .stage-tile i:nth-child(odd) {
+        background: var(--gold);
+    }
+
+    .waiting-block {
+        animation: none;
+    }
+}

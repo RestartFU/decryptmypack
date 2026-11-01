@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#191a1a" />
+        <meta
+            name="description"
+            content="Paste a Minecraft Bedrock server address and get its resource packs back as a clean, decrypted ZIP. No account needed, no upload."
+        />
+        <meta property="og:title" content="decryptmypack.com" />
+        <meta property="og:description" content="Download and decrypt Minecraft Bedrock server resource packs." />
+        <meta property="og:type" content="website" />
+        <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+        <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+        <link rel="preload" href="/assets/Silkscreen-Bold.woff2" as="font" type="font/woff2" crossorigin />
+        <link rel="stylesheet" href="/atlas.css?v=atlas-5" />
+        <link rel="stylesheet" href="/style.css?v=atlas-5" />
+        <title>decryptmypack.com: Minecraft Bedrock server pack downloader</title>
+    </head>
+    <body>
+        <a class="skip-link" href="#input">Skip to the server address field</a>
+
+        <header class="site-header">
+            <div class="shell header-inner">
+                <a class="brand" href="/" aria-label="decryptmypack.com home">
+                    <svg class="brand-mark" viewBox="0 0 10 10" aria-hidden="true">
+                        <path class="mark-base" d="M0 1h4v4H0zM0 6h4v4H0zM5 6h4v4H5z" />
+                        <path class="mark-lift" d="M6 0h4v4H6z" />
+                    </svg>
+                    <span>decryptmypack<span class="brand-tld">.com</span></span>
+                </a>
+
+                <nav class="site-nav" aria-label="Primary">
+                    <a href="#how-it-works">How it works</a>
+                    <a href="#browse"><span class="nav-long">Browse </span>servers</a>
+                </nav>
+
+                <button id="discord-btn" class="btn btn-quiet discord-button" type="button">
+                    <svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M2 2h12v9H8l-3 3v-3H2zM5 6h2v2H5zM9 6h2v2H9z" /></svg>
+                    <span>Discord</span>
+                </button>
+            </div>
+        </header>
+
+        <main id="main">
+            <section class="hero" aria-labelledby="hero-title">
+                <div class="shell">
+                    <div class="hero-intro">
+                        <h1 id="hero-title">decrypt my pack</h1>
+                        <p class="lead">
+                            Paste a Minecraft Bedrock server address. We join the server, take every resource
+                            pack it sends, strip the encryption, and hand you one clean ZIP.
+                        </p>
+                    </div>
+
+                    <div class="workspace">
+                        <aside class="account-rail tile" aria-labelledby="accounts-title">
+                            <div class="section-heading">
+                                <h2 class="label" id="accounts-title">Accounts</h2>
+                                <button class="btn btn-icon" id="add-account" type="button" title="Add a Microsoft account" aria-label="Add a Microsoft account">
+                                    <svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M7 2h2v12H7zM2 7h12v2H2z" /></svg>
+                                </button>
+                            </div>
+                            <div class="account-list" id="account-list" aria-live="polite">
+                                <p class="empty-accounts">No account needed for cached servers. Add your Microsoft account to fetch new ones with it.</p>
+                            </div>
+                            <p class="rail-note" id="rail-note">
+                                New servers are joined with your selected account, or the site's shared account if you have none.
+                                Every finished pack goes into the shared cache.
+                            </p>
+                            <dl class="stats" aria-label="Community cache statistics">
+                                <div class="stat">
+                                    <dt>Packs served</dt>
+                                    <dd id="total-downloads">—</dd>
+                                </div>
+                                <div class="stat">
+                                    <dt>Servers cached</dt>
+                                    <dd id="unique-downloads">—</dd>
+                                </div>
+                            </dl>
+                        </aside>
+
+                        <div class="workspace-main">
+                            <div class="address-panel">
+                                <label class="label" for="input">Server address</label>
+                                <div class="slot" role="group" aria-label="Server address">
+                                    <span class="slot-glyph" aria-hidden="true">
+                                        <svg class="icon" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M2 2h12v5H2zM2 9h12v5H2zM4 4h2v1H4zM4 11h2v1H4z" /></svg>
+                                    </span>
+                                    <input
+                                        id="input"
+                                        type="text"
+                                        placeholder="play.enchanted.gg:19132"
+                                        autocomplete="off"
+                                        autocapitalize="none"
+                                        spellcheck="false"
+                                        inputmode="url"
+                                        enterkeyhint="go"
+                                    />
+                                    <button id="decrypt-btn" class="btn btn-go" type="button">Decrypt pack</button>
+                                </div>
+
+                                <p id="error" class="form-error notice" role="alert" aria-live="assertive" data-visible="false"></p>
+
+                                <ul class="format-hints" aria-label="Accepted address formats">
+                                    <li><code>play.server.net</code></li>
+                                    <li><code>host:port</code></li>
+                                    <li><code>[ipv6]:port</code></li>
+                                    <li>Bedrock add-server links</li>
+                                </ul>
+
+                                <div id="recent-targets" class="recent-targets" hidden></div>
+                            </div>
+
+                            <section
+                                id="status-card"
+                                class="console tile"
+                                data-state="idle"
+                                aria-live="polite"
+                                aria-labelledby="status-title"
+                            >
+                                <div class="console-head">
+                                    <div class="console-copy">
+                                        <p class="console-title-row">
+                                            <span id="status-dot" class="status-dot" data-state="idle" aria-hidden="true"></span>
+                                            <span id="status-title" class="console-title">Ready when you are</span>
+                                        </p>
+                                        <p id="status-text" class="console-text">Enter a server and start a download.</p>
+                                        <p id="status-target" class="console-target"></p>
+                                    </div>
+                                    <div class="console-actions-wrap">
+                                        <div id="status-actions" class="console-actions" hidden>
+                                            <button id="download-again" class="btn btn-quiet" type="button">Download again</button>
+                                        </div>
+                                        <div id="status-wait-actions" class="console-actions" hidden>
+                                            <button id="cancel-download-wait" class="btn btn-quiet" type="button">Stop waiting</button>
+                                        </div>
+                                        <div id="status-retry-actions" class="console-actions" hidden>
+                                            <button id="retry-download" class="btn btn-quiet" type="button">Try again</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <ol class="stages" id="status-stages" aria-label="Download stages">
+                                    <li class="stage" data-stage-state="pending"><span class="stage-tile" aria-hidden="true"></span><span class="stage-name">Cache</span></li>
+                                    <li class="stage" data-stage-state="pending"><span class="stage-tile" aria-hidden="true"></span><span class="stage-name">Join</span></li>
+                                    <li class="stage" data-stage-state="pending"><span class="stage-tile" aria-hidden="true"></span><span class="stage-name">Download</span></li>
+                                    <li class="stage" data-stage-state="pending"><span class="stage-tile" aria-hidden="true"></span><span class="stage-name">Decrypt</span></li>
+                                    <li class="stage" data-stage-state="pending"><span class="stage-tile" aria-hidden="true"></span><span class="stage-name">Ready</span></li>
+                                </ol>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="browse" class="section section-browse" aria-labelledby="browse-title">
+                <div class="shell">
+                    <div class="browse-head">
+                        <h2 id="browse-title">Popular servers</h2>
+                        <div class="slot search">
+                            <label class="sr-only" for="browse-search">Search servers</label>
+                            <span class="slot-glyph" aria-hidden="true">
+                                <svg class="icon" viewBox="0 0 16 16"><path d="M4 1h6v2H4zM2 3h2v6H2zM10 3h2v6h-2zM4 9h6v2H4zM11 11h2v2h-2zM13 13h2v2h-2z" /></svg>
+                            </span>
+                            <input
+                                id="browse-search"
+                                type="search"
+                                placeholder="Search by name or address"
+                                autocomplete="off"
+                                autocapitalize="none"
+                                spellcheck="false"
+                                enterkeyhint="go"
+                            />
+                        </div>
+                    </div>
+
+                    <ul class="legend" aria-label="Cache status legend">
+                        <li><i class="cache-glyph cache-glyph-cached" aria-hidden="true"></i>Cached</li>
+                        <li><i class="cache-glyph cache-glyph-running" aria-hidden="true"></i>Downloading now</li>
+                        <li><i class="cache-glyph cache-glyph-uncached" aria-hidden="true"></i>Not cached yet</li>
+                        <li><i class="cache-glyph cache-glyph-failed" aria-hidden="true"></i>Last attempt failed</li>
+                    </ul>
+
+                    <div id="popular-server-list" class="atlas-grid server-grid" aria-live="polite">
+                        <div class="popular-empty">Loading servers…</div>
+                    </div>
+
+                    <p class="browse-note">
+                        Ranked by anonymous download counts on this site. Press Enter in the search box to
+                        decrypt the first match.
+                    </p>
+                </div>
+            </section>
+
+            <section id="how-it-works" class="section" aria-labelledby="how-title">
+                <div class="shell">
+                    <div class="section-head">
+                        <h2 id="how-title">Server in. ZIP out.</h2>
+                        <p class="section-lead">
+                            Nothing to install and nothing to upload. Every download moves through the same five
+                            stages you see in the status panel.
+                        </p>
+                    </div>
+
+                    <ol class="stage-key tile">
+                        <li class="stage-key-item">
+                            <span class="stage stage-key-tile" data-stage-state="done" data-cache-hit="true"><span class="stage-tile" aria-hidden="true"></span></span>
+                            <h3>Cache</h3>
+                            <p>If anyone fetched this server before, the ZIP is already here and starts at once.</p>
+                        </li>
+                        <li class="stage-key-item">
+                            <span class="stage stage-key-tile" data-stage-state="done"><span class="stage-tile" aria-hidden="true"></span></span>
+                            <h3>Join</h3>
+                            <p>A headless Bedrock client connects to the address you gave, following any server transfer.</p>
+                        </li>
+                        <li class="stage-key-item">
+                            <span class="stage stage-key-tile" data-stage-state="done"><span class="stage-tile" aria-hidden="true"></span></span>
+                            <h3>Download</h3>
+                            <p>It accepts the server's pack offer and receives every resource pack, chunk by chunk.</p>
+                        </li>
+                        <li class="stage-key-item">
+                            <span class="stage stage-key-tile" data-stage-state="done"><span class="stage-tile" aria-hidden="true"></span></span>
+                            <h3>Decrypt</h3>
+                            <p>Encrypted packs are unlocked with the keys the server sent, then bundled together.</p>
+                        </li>
+                        <li class="stage-key-item">
+                            <span class="stage stage-key-tile" data-stage-state="done"><span class="stage-tile" aria-hidden="true"></span></span>
+                            <h3>Ready</h3>
+                            <p>Your browser starts the download. One ZIP, one folder per pack.</p>
+                        </li>
+                    </ol>
+                </div>
+            </section>
+
+            <section class="section section-cross" aria-labelledby="cross-title">
+                <div class="shell cross tile">
+                    <div class="cross-copy">
+                        <h2 id="cross-title">Going the other way?</h2>
+                        <p>portmypack.com converts Java Edition resource packs so they run on Bedrock.</p>
+                    </div>
+                    <a class="btn" href="https://portmypack.com" target="_blank" rel="noopener noreferrer">
+                        Open portmypack.com
+                    </a>
+                </div>
+            </section>
+        </main>
+
+        <footer class="site-footer">
+            <div class="shell footer-inner">
+                <a class="brand" href="/" aria-label="decryptmypack.com home">
+                    <svg class="brand-mark" viewBox="0 0 10 10" aria-hidden="true">
+                        <path class="mark-base" d="M0 1h4v4H0zM0 6h4v4H0zM5 6h4v4H5z" />
+                        <path class="mark-lift" d="M6 0h4v4H6z" />
+                    </svg>
+                    <span>decryptmypack<span class="brand-tld">.com</span></span>
+                </a>
+                <p class="footer-note">No account needed. No upload. Just the pack.</p>
+                <nav class="footer-nav" aria-label="Footer">
+                    <a href="#how-it-works">How it works</a>
+                    <a href="#browse">Browse</a>
+                    <a href="https://portmypack.com" target="_blank" rel="noopener noreferrer">portmypack.com</a>
+                </nav>
+            </div>
+        </footer>
+
+        <div
+            id="discord-modal"
+            class="modal dialog-backdrop"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="discord-modal-title"
+            aria-describedby="discord-modal-text"
+            hidden
+        >
+            <div class="dialog">
+                <h2 id="discord-modal-title">Join the Discord</h2>
+                <p id="discord-modal-text">
+                    Report a server that will not decrypt, suggest what we should cache next, or just say hi.
+                </p>
+                <div class="dialog-actions">
+                    <button id="discord-dismiss" class="btn btn-quiet" type="button">Maybe later</button>
+                    <button id="discord-join" class="btn btn-go btn-quiet" type="button">Join Discord</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="dialog-backdrop" id="account-modal" role="dialog" aria-modal="true" aria-labelledby="account-modal-title" hidden>
+            <div class="dialog">
+                <button class="btn btn-icon modal-close" id="account-modal-close" type="button" aria-label="Close">
+                    <svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3h2v2H3zM5 5h2v2H5zM7 7h2v2H7zM9 9h2v2H9zM11 11h2v2h-2zM11 3h2v2h-2zM9 5h2v2H9zM5 9h2v2H5zM3 11h2v2H3z" /></svg>
+                </button>
+                <h2 id="account-modal-title">Add a Microsoft account</h2>
+
+                <div id="login-step">
+                    <p>Microsoft shows you a one-time code page. We never see your password. The account's Xbox profile name appears in your account list.</p>
+                    <p class="dialog-fine">The account is saved encrypted for this browser only. Remove it any time from the account list.</p>
+                    <button class="btn btn-go dialog-wide" id="begin-login" type="button">Continue with Microsoft</button>
+                </div>
+
+                <div id="code-step" hidden>
+                    <p>Open the Microsoft page and enter this one-time code. This window finishes on its own.</p>
+                    <button class="code-box" id="copy-code" type="button"><span id="login-code">—</span><small>Click to copy</small></button>
+                    <a class="btn btn-go dialog-wide" id="open-login" href="https://www.microsoft.com/link" target="_blank" rel="noopener noreferrer">Open Microsoft sign-in</a>
+                    <p class="waiting"><span class="waiting-block" aria-hidden="true"></span><span id="login-status">Waiting for approval…</span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="toast" id="toast" role="status" hidden></div>
+
+        <script src="/src/script.js?v=atlas-5"></script>
+    </body>
+</html>

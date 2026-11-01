@@ -1,0 +1,16 @@
+[Unit]
+Description=DecryptMyPack GitHub Actions deployment runner
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+WorkingDirectory=%h/actions-runner-decryptmypack
+ExecStart=%h/actions-runner-decryptmypack/runsvc.sh
+Environment=PATH=%h/.nix-profile/bin:/usr/local/bin:/usr/bin:/bin
+Restart=always
+RestartSec=5
+KillMode=process
+TimeoutStopSec=5min
+
+[Install]
+WantedBy=default.target

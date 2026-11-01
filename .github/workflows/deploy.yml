@@ -1,0 +1,40 @@
+name: deploy website
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, Linux, X64, decryptmypack-deploy]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          # make uses /tmp/go-build and /tmp/go-mod; do not archive host-wide caches.
+          cache: false
+
+      - name: Test and build website
+        run: make test build-linux
+
+      - name: Deploy and verify origin
+        env:
+          DEPLOY_LISTEN_ADDR: ${{ secrets.DEPLOY_LISTEN_ADDR }}
+          DEPLOY_ORIGIN: ${{ secrets.DEPLOY_ORIGIN }}
+        run: ./scripts/deploy-local.sh
+
+      - name: Verify public website
+        run: |
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --max-time 30 https://decryptmypack.com/health
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --max-time 30 https://decryptmypack.com/ | grep -qi 'decrypt my pack'
